@@ -1,0 +1,111 @@
+managed with unmanaged save implementation in class zbp_r_chamado_eag unique;
+strict ( 2 );
+with draft;
+
+define behavior for ZR_CHAMADO_EAG alias Chamado
+//persistent table zchamado_eag
+with unmanaged save
+draft table zchamado_eag_d
+lock master
+total etag LastChangedAt
+authorization master ( instance )
+etag master LocalLastChangedAt
+
+{
+
+  draft action ( features : instance ) Edit;
+  draft action Activate optimized;
+  draft action Discard;
+  draft action Resume;
+  draft determine action Prepare{
+    validation validarTitulo;
+    validation validarSolicitante;
+    validation validarPrioridade;
+    validation Comentario~validarTexto;
+  }
+
+  create ( authorization : global );
+  update ( features : instance );
+  delete;
+
+  association _Comentarios { create; with draft; }
+
+  // chave UUID gerada automaticamente pelo framework; ninguém de fora preenche.
+  field ( numbering : managed, readonly ) ChamadoUuid;
+  // náo é possivel editar, somente olhar, so lembrando que action fechar tem in local mode, que la sim da pra alterar
+  field ( readonly ) Status, StatusTexto,
+                     LocalCreatedBy, LocalCreatedAt, LocalLastChangedBy,
+                     LocalLastChangedAt, LastChangedAt;
+  // para alterar não é possivel, e para criar é obrigatorio
+  field ( readonly ) ChamadoId;
+  // marca como obrigatório (UI/metadata); NÃO bloqueia, a checagem real é uma validation.
+  field ( mandatory ) Titulo, Solicitante;
+
+    field ( features : instance ) Prioridade;
+
+  // na hora da criação, esses 3 metodos serão chamados para validações, e na alteração dos respectivos campos
+  validation validarTitulo on save { create; field Titulo; }
+    determine action checarTitulo
+{
+  validation validarTitulo;
+}
+  validation validarSolicitante on save { create; field Solicitante; }
+
+  validation validarPrioridade on save { create; field Prioridade; }
+
+    // na hora da criação vou chamar esse metodo para deterinar o status com A
+      // on modify: o framework executa logo após o create; preenche Status = 'A' se estiver vazio
+  determination determinarStatus on modify { create; }
+
+  // on save    2º, durante o save, antes das validations
+    determination determinarChamadoId on save { create; }
+
+    //action fechar result [1] $self;
+      action ( features : instance ) fechar result [1] $self;
+
+
+  mapping for zchamado_eag corresponding
+  {
+    ChamadoUuid        = chamado_uuid;
+    ChamadoId          = chamado_id;
+    DataAbertura       = data_abertura;
+    LocalCreatedBy     = local_created_by;
+    LocalCreatedAt     = local_created_at;
+    LocalLastChangedBy = local_last_changed_by;
+    LocalLastChangedAt = local_last_changed_at;
+    LastChangedAt      = last_changed_at;
+  }
+}
+
+
+define behavior for ZR_COMENTARIO_EAG alias Comentario
+//persistent table zcoment_eag
+with unmanaged save
+draft table zcoment_eag_d
+lock dependent by _Chamado
+authorization dependent by _Chamado
+etag master LocalLastChangedAt
+{
+  update;
+  delete;
+
+  field ( numbering : managed, readonly ) ComentarioUuid;
+  field ( readonly ) ChamadoUuid, LocalCreatedBy, LocalCreatedAt,
+                     LocalLastChangedBy, LocalLastChangedAt;
+  field ( mandatory ) Texto;
+
+  validation validarTexto on save { create; field Texto; }
+
+    determination atualizarStatusChamado on save { create; }
+  association _Chamado { with draft; }
+
+  mapping for zcoment_eag control  ZCOMENT_X_EAG corresponding
+  {
+    ComentarioUuid     = comentario_uuid;
+    ChamadoUuid        = chamado_uuid;
+    LocalCreatedBy     = local_created_by;
+    LocalCreatedAt     = local_created_at;
+    LocalLastChangedBy = local_last_changed_by;
+    LocalLastChangedAt = local_last_changed_at;
+  }
+}

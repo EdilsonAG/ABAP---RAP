@@ -1,0 +1,36 @@
+@Metadata.layer: #CORE
+@UI.headerInfo: { typeName: 'Chamado', typeNamePlural: 'Chamados',
+                  title: { value: 'ChamadoId' }, description: { value: 'Titulo'} }
+annotate view ZC_CHAMADO_EAG with
+{
+  @UI.facet: [{ id: 'Geral', purpose: #STANDARD, type: #IDENTIFICATION_REFERENCE,
+                label: 'Dados do chamado', position: 10 }]
+  @UI.hidden: true
+  ChamadoUuid;
+
+    @UI: { lineItem:       [{ position: 10 },
+                          { type: #FOR_ACTION, dataAction: 'fechar', label: 'Fechar chamado' }],
+         identification: [{ position: 10 },
+                          { type: #FOR_ACTION, dataAction: 'fechar', label: 'Fechar chamado' }],
+         selectionField: [{ position: 10 }] }
+  ChamadoId;
+  
+  @UI: { lineItem: [{ position: 20 }], identification: [{ position: 20 }], selectionField: [{ position: 20 }] }
+  Titulo;
+  
+  @UI: { lineItem: [{ position: 30 }], identification: [{ position: 30 }], selectionField: [{ position: 30 }] }
+  Solicitante;
+  
+  @UI: { lineItem: [{ position: 40 }], identification: [{ position: 50 }] }
+  StatusTexto;
+  
+  @UI: { lineItem: [{ position: 40 }], identification: [{ position: 50 }] }
+  Prioridade;
+  
+  @UI: { lineItem: [{ position: 60 }], identification: [{ position: 70 }] }
+  DataAbertura;
+  
+  
+
+ 
+}

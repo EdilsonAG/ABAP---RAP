@@ -1,0 +1,6 @@
+@EndUserText.label: 'Acesso Chamado'
+@MappingRole: true
+define role ZR_CHAMADO_EAG {
+  grant select on ZR_CHAMADO_EAG
+    where LocalCreatedBy = aspect user;
+}

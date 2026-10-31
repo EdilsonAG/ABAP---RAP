@@ -1,0 +1,5 @@
+@EndUserText.label: 'ZUI_CHAMADO_EAG'
+define service ZUI_CHAMADO_EAG {
+  expose ZC_CHAMADO_EAG    as Chamado;
+  expose ZC_COMENTARIO_EAG as Comentario;
+}

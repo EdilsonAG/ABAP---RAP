@@ -1,0 +1,5 @@
+CLASS zbp_r_categoria_eag DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zr_categoria_eag.
+ENDCLASS.
+
+CLASS zbp_r_categoria_eag IMPLEMENTATION.
+ENDCLASS.

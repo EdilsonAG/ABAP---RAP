@@ -1,0 +1,6 @@
+@EndUserText.label: 'Acesso Chamado - Projeção'
+@MappingRole: true
+define role ZC_CHAMADO_EAG {
+  grant select on ZC_CHAMADO_EAG
+    where inheriting conditions from entity ZR_CHAMADO_EAG;
+}

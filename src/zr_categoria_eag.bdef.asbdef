@@ -1,0 +1,23 @@
+unmanaged implementation in class zbp_r_categoria_eag unique;
+strict ( 2 );
+
+define behavior for ZR_CATEGORIA_EAG alias Categoria
+lock master
+authorization master ( instance )
+etag master AllElements
+{
+  create;
+  update;
+  delete;
+
+  field ( readonly : update ) CategoriaId;   // chave: informada no create, nunca alterada
+  field ( mandatory : create ) CategoriaId;
+  field ( readonly ) AllElements;
+
+    mapping for zcateg_eag corresponding
+  {
+    CategoriaId = categoria_id;
+    Descricao   = descricao;
+    Ativo       = ativo;
+  }
+}
