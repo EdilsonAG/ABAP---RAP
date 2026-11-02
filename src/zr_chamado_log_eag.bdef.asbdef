@@ -1,0 +1,21 @@
+managed implementation in class zbp_r_chamado_log_eag unique;
+strict ( 2 );
+
+define behavior for ZR_CHAMADO_LOG_EAG   alias ChamadoLog
+persistent table zchamado_log_eag
+lock master
+authorization master ( instance )
+//etag master <field_name>
+{
+  create;
+
+
+
+  mapping for zchamado_log_eag corresponding
+  {
+    LogUuid     = log_uuid;
+    ChamadoUuid = chamado_uuid;
+    AlteradoPor = alterado_por;
+    AlteradoEm  = alterado_em;
+  }
+}

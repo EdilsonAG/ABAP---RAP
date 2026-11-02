@@ -1,0 +1,5 @@
+CLASS zbp_r_chamado_log_eag DEFINITION PUBLIC ABSTRACT FINAL FOR BEHAVIOR OF zr_chamado_log_eag.
+ENDCLASS.
+
+CLASS zbp_r_chamado_log_eag IMPLEMENTATION.
+ENDCLASS.

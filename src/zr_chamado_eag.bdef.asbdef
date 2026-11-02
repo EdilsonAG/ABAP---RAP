@@ -1,28 +1,42 @@
-managed with unmanaged save implementation in class zbp_r_chamado_eag unique;
+//managed with unmanaged save implementation in class zbp_r_chamado_eag unique;
+managed implementation in class zbp_r_chamado_eag unique;
 strict ( 2 );
 with draft;
+extensible
+{
+  with validations on save;
+  with determinations on modify;
+  with determinations on save;
+  with additional save;
+}
 
 define behavior for ZR_CHAMADO_EAG alias Chamado
-//persistent table zchamado_eag
-with unmanaged save
+persistent table zchamado_eag
+with additional save
+//with unmanaged save
 draft table zchamado_eag_d
 lock master
 total etag LastChangedAt
 authorization master ( instance )
 etag master LocalLastChangedAt
-
+extensible
 {
 
   draft action ( features : instance ) Edit;
   draft action Activate optimized;
   draft action Discard;
   draft action Resume;
-  draft determine action Prepare{
+  draft determine action Prepare
+  extensible
+  {
     validation validarTitulo;
     validation validarSolicitante;
     validation validarPrioridade;
     validation Comentario~validarTexto;
   }
+
+  event ChamadoCriado;
+  event ChamadoFechado;
 
   create ( authorization : global );
   update ( features : instance );
@@ -64,8 +78,8 @@ etag master LocalLastChangedAt
       action ( features : instance ) fechar result [1] $self;
 
 
-  mapping for zchamado_eag corresponding
-  {
+  mapping for zchamado_eag corresponding ##unextensible_mapping
+    {
     ChamadoUuid        = chamado_uuid;
     ChamadoId          = chamado_id;
     DataAbertura       = data_abertura;
@@ -85,6 +99,7 @@ draft table zcoment_eag_d
 lock dependent by _Chamado
 authorization dependent by _Chamado
 etag master LocalLastChangedAt
+extensible
 {
   update;
   delete;
@@ -99,7 +114,7 @@ etag master LocalLastChangedAt
     determination atualizarStatusChamado on save { create; }
   association _Chamado { with draft; }
 
-  mapping for zcoment_eag control  ZCOMENT_X_EAG corresponding
+  mapping for zcoment_eag control  ZCOMENT_X_EAG corresponding  ##unextensible_mapping
   {
     ComentarioUuid     = comentario_uuid;
     ChamadoUuid        = chamado_uuid;

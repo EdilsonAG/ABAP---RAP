@@ -1,3 +1,63 @@
+CLASS lsc_zr_chamado_eag DEFINITION INHERITING FROM cl_abap_behavior_saver.
+
+  PROTECTED SECTION.
+
+    METHODS save_modified REDEFINITION.
+
+ENDCLASS.
+
+CLASS lsc_zr_chamado_eag IMPLEMENTATION.
+
+  METHOD save_modified.
+
+      " Additional save: o framework já grava o chamado; aqui só o log extra
+*    DATA lt_log TYPE STANDARD TABLE OF zchamado_log_eag WITH EMPTY KEY.
+*
+*    LOOP AT create-chamado INTO DATA(ls_ch_c).
+*      APPEND VALUE #( chamado_uuid = ls_ch_c-ChamadoUuid
+*                      status       = ls_ch_c-Status ) TO lt_log.
+*    ENDLOOP.
+*
+*    LOOP AT update-chamado INTO DATA(ls_ch_u)
+*         WHERE %control-Status = if_abap_behv=>mk-on.     " só quando o Status mudou
+*      APPEND VALUE #( chamado_uuid = ls_ch_u-ChamadoUuid
+*                      status       = ls_ch_u-Status ) TO lt_log.
+*    ENDLOOP.
+*
+*    LOOP AT lt_log ASSIGNING FIELD-SYMBOL(<ls_log>).
+*      TRY.
+*          <ls_log>-log_uuid = cl_system_uuid=>create_uuid_x16_static( ).
+*        CATCH cx_uuid_error.
+*          CONTINUE.
+*      ENDTRY.
+*      <ls_log>-alterado_por = cl_abap_context_info=>get_user_technical_name( ).
+*      <ls_log>-alterado_em  = utclong_current( ).
+*    ENDLOOP.
+*
+*    IF lt_log IS NOT INITIAL.
+*      INSERT zchamado_log_eag FROM TABLE @lt_log.   " em projeto real: isolar numa classe
+*    ENDIF.
+
+    " Evento: chamados criados
+    IF create-chamado IS NOT INITIAL.
+      RAISE ENTITY EVENT zr_chamado_eag~ChamadoCriado
+        FROM CORRESPONDING #( create-chamado ).
+    ENDIF.
+
+    " Evento: chamados fechados (Status passou a 'F')
+    DATA lt_fechados TYPE TABLE FOR EVENT zr_chamado_eag~ChamadoFechado.
+
+    lt_fechados = VALUE #( FOR ls_upd IN update-chamado
+                           WHERE ( %control-Status = if_abap_behv=>mk-on AND Status = 'F' )
+                           ( ChamadoUuid = ls_upd-ChamadoUuid ) ).
+
+    IF lt_fechados IS NOT INITIAL.
+      RAISE ENTITY EVENT zr_chamado_eag~ChamadoFechado FROM lt_fechados.
+    ENDIF.
+  ENDMETHOD.
+
+ENDCLASS.
+
 CLASS lhc_comentario DEFINITION INHERITING FROM cl_abap_behavior_handler.
 
   PRIVATE SECTION.
